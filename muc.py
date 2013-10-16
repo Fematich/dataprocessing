@@ -7,9 +7,7 @@ Created on Wed Oct 16 11:50:54 2013
 
 
 
-import os
-import logging
-import re
+import os,logging,re
 from datetime import datetime
 
 import whoosh
@@ -26,9 +24,9 @@ logger=logging.getLogger("muc-data")
 def MakeIndex():
     #create schema
     schema = Schema(
-                    title=TEXT(stored=True), 
+                    identifier=ID(stored=True), 
+                    location=TEXT,
                     content=TEXT,
-                    identifier=NUMERIC(stored=True),
                     date=DATETIME(stored=True)
                     )
     #create index
@@ -53,5 +51,43 @@ def MakeIndex():
                             )
     writer.commit()
 
+class MessageFile():
+    '''
+    given a string containing different messages, it identifies the different messages and corresponding header-date
+    '''
+    def __init__(self,text=None,doc=None):
+        if text!=None:
+            self.text=text
+        elif:
+            with open(doc) as f:
+                text=f.read()
+                self.text=text
+        else:
+            logger.error("no initialization provided")
+    
+    def __iter__(self):
+        for line in self.text:
+            if
+            yield filename,self.docs.read(filename)
+
+class Message():
+    def __init__(self,docs=None,date=None,zipname=None,poordirectory=poordirectory):
+        if docs!=None:
+            self.docs=docs
+        elif zipname!=None:
+            self.docs = zipfile.ZipFile(os.path.join(poordirectory,zipname), "r")
+        elif date!=None:
+            self.docs = zipfile.ZipFile(os.path.join(poordirectory,"MED_%d.zip"%date), "r")
+        else:
+            logger.error("no initialization provided")
+    
+    def __iter__(self):
+        for filename in self.docs.namelist():
+            yield filename,self.docs.read(filename)
+
+    def getdoc(self,docidentifier):
+        return self.docs.read("med%d.xml"%docidentifier)
+               
+
 if __name__ == '__main__':
-    MakeIndex()
+    #MakeIndex()

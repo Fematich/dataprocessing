@@ -28,7 +28,7 @@ def getdocuments(directory,extension=standardformat):
     return filelist,names
     
 
-
+# Mediargus formats
 class PoorDay():
     def __init__(self,docs=None,date=None,zipname=None,poordirectory=poordirectory):
         if docs!=None:
