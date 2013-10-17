@@ -10,8 +10,7 @@ from xml.dom.minidom import parseString
 logger=logging.getLogger("utils")
 poordirectory="/home/mfeys/work/poor"
 
-standardformat=re.compile('(?P<name>.*).muc.*')
-def getdocuments(directory,extension=standardformat):
+def getdocuments(directory,extension):
     """
     given a directory, it returns a list of the paths and names of the files with a given extension/format
     """
@@ -19,10 +18,10 @@ def getdocuments(directory,extension=standardformat):
     names=[]
     allfiles=os.listdir(directory)
     for l in allfiles:
-        match = re.search(extension,l)
+        match = re.match(extension,l)
         if match:
             filelist.append(os.path.join(directory,match.group(0)))
-            names.append(match.group('name'))
+            names.append(match.group(0))
             names.sort()
             filelist.sort()
     return filelist,names
