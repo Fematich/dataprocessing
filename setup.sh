@@ -5,5 +5,6 @@ virtualenv venv
 
 pip install nltk
 pip install whoosh
+pip install ipython
 #pip install flask
 

@@ -26,32 +26,37 @@ testline=re.compile('TST.*-MUC(?P<ed>\d)-(?P<val>\d+)')
 descline=re.compile('(?P<loc>.*),(?P<date>.*)--(?P<msg>.*)')
 infoblock=re.compile('\[[^]]*\]')
 
-def MakeIndex():
+def MakeIndex(Train=True):
     #create schema
     schema = Schema(
-                    identifier=ID(stored=True), 
-                    location=TEXT(stored=True),
+                    identifier=TEXT(stored=True), 
                     content=TEXT(stored=True),
-                    date=ID(stored=True)
+                    location=TEXT(stored=True),
+                    date=TEXT(stored=True)
                     )
     #create index
     if not os.path.exists(indexdir):
         os.mkdir(indexdir)
     ix = create_in(indexdir, schema)
     
-    #fill index with entries
+    #fill index with entries    
     writer = ix.writer(procs=1, limitmb=512, multisegment=False) 
-    for msg in IterateMessages(True):
+    cnt=0
+    cnts=0
+    for msg in IterateMessages(Train):
         try:
-            writer.add_document(identifier=msg[0], 
+            #print msg
+            writer.add_document(identifier=msg[0].decode('unicode-escape'), 
                             content=msg[2],
-                            location=msg[1]['loc'],
-                            date=msg[1]['date']
+                            location=(msg[1]['loc']).decode('unicode-escape'),
+                            date=(msg[1]['date']).decode('unicode-escape')
                             )
-        except Exception:
-            print Exception, msg
+            cnts+=1
+        except Exception, e:
+            print e,msg
+            cnt+=1
     writer.commit()
-
+    print 'Failed documents:%d \t Succeeded:%d'%(cnt,cnts)
 class MessageFile():
     '''
     given a string containing different messages, it identifies the different messages and corresponding header-date
@@ -87,20 +92,20 @@ class MessageFile():
                 #process msg identifier
                 if not first:
                     lastdoc=matchdoc
-                    matchdoc=[matchline.group('ed'),matchline.group('val')]
+                    matchdoc=matchline.group(0)
                     if matchdoc != None :
                         msg=re.sub(infoblock,'',msg)
                         #print (lastdoc,descr,msg)
-                        yield (lastdoc,descr,msg)
+                        yield (lastdoc,descr,msg.decode('unicode-escape'))
                         docno+=1
                         msg=''
                         descr={}
                 else:
-                    lastdoc=[matchline.group('ed'),matchline.group('val')]
+                    lastdoc=matchline.group(0)
                     matchdoc=lastdoc
                     first=False
         msg=re.sub(infoblock,'',msg)                    
-        yield (lastdoc,descr,msg)
+        yield (matchdoc,descr,msg.decode('unicode-escape'))
         #print (matchdoc,descr,msg)
         docno+=1
         msg=''
@@ -118,11 +123,13 @@ def IterateMessages(train=True):
             msgdir=os.path.join(datadir,'tst%d'%i)
             docs+=getdocuments(msgdir,re.compile('tst.*'))[0]
     for docpath in docs:
+        logger.info('start processing: %s'%docpath)
         msgfile=MessageFile(doc=docpath,docline=docline)
         for msg in msgfile:
             yield msg
 if __name__ == '__main__':
-    MakeIndex()
+    MakeIndex(True)
+    MakeIndex(False)
 #    cnt=0
 #    for msg in IterateMessages(False):
 #        cnt+=1
