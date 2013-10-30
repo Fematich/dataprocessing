@@ -5,6 +5,9 @@ Created on Wed Oct 16 11:50:54 2013
 @author: mfeys
 """
 
+"""
+module to handle the MUC-files
+"""
 
 
 import os,logging,re
@@ -12,11 +15,11 @@ from datetime import datetime
 
 import whoosh
 from whoosh.fields import Schema, TEXT, NUMERIC, DATETIME,ID
-from whoosh.index import create_in
+from whoosh.index import create_in, open_dir
+from whoosh.qparser import QueryParser
 
 from utils import getdocuments
-from config import muc_datadir as datadir,muc_indexdir as indexdir
-
+from config import muc_datadir as datadir,muc_indexdir as indexdir, MAX_SEARCH_RESULTS
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("muc-data")
@@ -26,6 +29,28 @@ testline=re.compile('TST.*-MUC(?P<ed>\d)-(?P<val>\d+)')
 descline=re.compile('(?P<loc>.*),(?P<date>.*)--(?P<msg>.*)')
 infoblock=re.compile('\[[^]]*\]')
 
+class MUCmessages():
+    '''
+    class to handle the indexed messages
+    '''
+    def __init__(self,indexdir=indexdir):
+        self.ix = open_dir(indexdir)
+    
+    def finddocs(self,query,max_search_results=MAX_SEARCH_RESULTS):
+        res=[]
+        with self.ix.searcher() as searcher:
+            parser = QueryParser("content", self.ix.schema)
+            myquery = parser.parse(query)
+            results = searcher.search(myquery,limit=max_search_results)
+            ndocs=results.estimated_length()
+            for result in results:
+                res.append({'identifier':result['identifier'],'content':result['content'],'location':result['location'],'date':result['date']})
+        return res,ndocs
+
+    def __iter__(self):
+        reader=self.ix.reader()
+        return reader.iter_docs()
+        
 def MakeIndex(Train=True):
     #create schema
     schema = Schema(
@@ -127,6 +152,8 @@ def IterateMessages(train=True):
         msgfile=MessageFile(doc=docpath,docline=docline)
         for msg in msgfile:
             yield msg
+
+
 if __name__ == '__main__':
     MakeIndex(True)
     MakeIndex(False)
