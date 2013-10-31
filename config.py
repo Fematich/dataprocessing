@@ -1,5 +1,5 @@
 #muc variables
-muc_datadir='/home/mfeys/work/muc34/TASK/CORPORA'
+muc_datadir='../data/muc34/TASK/CORPORA'
 muc_indexdir='../data/mucindex'
 
 #mediargus variables

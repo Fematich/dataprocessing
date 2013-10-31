@@ -62,7 +62,9 @@ def MakeIndex(Train=True):
     #create index
     if not os.path.exists(indexdir):
         os.mkdir(indexdir)
-    ix = create_in(indexdir, schema)
+        ix = create_in(indexdir, schema)
+    else:
+        ix=open_dir(indexdir)
     
     #fill index with entries    
     writer = ix.writer(procs=1, limitmb=512, multisegment=False) 
