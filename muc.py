@@ -12,6 +12,7 @@ module to handle the MUC-files
 
 import os,logging,re
 from datetime import datetime
+import cPickle as pickle
 
 import whoosh
 from whoosh.fields import Schema, TEXT, NUMERIC, DATETIME,ID
@@ -19,7 +20,7 @@ from whoosh.index import create_in, open_dir
 from whoosh.qparser import QueryParser
 
 from utils import getdocuments
-from config import muc_datadir as datadir,muc_indexdir as indexdir, MAX_SEARCH_RESULTS
+from config import muc_datadir as datadir,muc_indexdir as indexdir, MAX_SEARCH_RESULTS,keypath
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 logger=logging.getLogger("muc-data")
@@ -50,7 +51,19 @@ class MUCmessages():
     def __iter__(self):
         reader=self.ix.reader()
         return reader.iter_docs()
-        
+
+class MUCkeys():
+    '''
+    class to more easily access the different keys of the MUC=files
+    '''
+    def __init__(self,keyfilepath=keypath):
+        self.keys = pickle.load(open(keyfilepath,'r'))
+    def getTypes(self,identifier):
+        types=[]
+        for i in range(len(self.keys[identifier])):
+            types.append(self.keys[identifier][i][1]['incident_type']['strings'][0])
+        return types
+
 def MakeIndex(Train=True):
     #create schema
     schema = Schema(
