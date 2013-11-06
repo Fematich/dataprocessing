@@ -60,9 +60,22 @@ class MUCkeys():
         self.keys = pickle.load(open(keyfilepath,'r'))
     def getTypes(self,identifier):
         types=[]
-        for i in range(len(self.keys[identifier])):
-            types.append(self.keys[identifier][i][1]['incident_type']['strings'][0])
+        try:
+            for i in range(len(self.keys[identifier])):
+                types.append(self.keys[identifier][i][1]['incident_type']['strings'][0])
+        except KeyError:
+            pass
         return types
+    def GetAllTypePresences(self,WType):
+        presences=[]
+        mucmessages=MUCmessages()
+        for msg in mucmessages:
+            present=0
+            for Type in self.getTypes(msg[1]['identifier'].encode('utf8')):
+                if Type==WType:
+                    present=1
+            presences.append(present)
+        return presences
 
 def MakeIndex(Train=True):
     #create schema
