@@ -8,7 +8,7 @@ import os,re,zipfile,nltk,logging
 from xml.dom.minidom import parseString
 
 logger=logging.getLogger("utils")
-poordirectory="/home/mfeys/work/poor"
+poordirectory=os.path.abspath("../data/mediargus_2011_be/poor")
 
 def getdocuments(directory,extension):
     """

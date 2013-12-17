@@ -4,8 +4,8 @@ muc_indexdir='../data/mucindex'
 keypath='../data/keys.pkl'
 
 #mediargus variables
-mediargus_datadir='/home/mfeys/work/poor'
-mediargus_indexdir='index'
+mediargus_datadir='../data/mediargus_2011_be/poor'
+mediargus_indexdir='../data/mediargus_2011_be/index'
 
 # search_settings
 MAX_SEARCH_RESULTS=None
