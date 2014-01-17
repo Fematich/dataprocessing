@@ -26,7 +26,7 @@ def MakeIndex():
                     title=TEXT(stored=True), 
                     content=TEXT,
                     identifier=NUMERIC(stored=True),
-                    date=DATETIME(stored=True)
+                    date=DATETIME(stored=True, sortable=True)
                     )
     #create index
     if not os.path.exists(indexdir):
